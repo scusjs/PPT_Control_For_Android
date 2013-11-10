@@ -1,3 +1,3 @@
-PPT_Control_For_Android
+PPT_Controller
 =======================
 一个通过安卓终端控制ppt软件
