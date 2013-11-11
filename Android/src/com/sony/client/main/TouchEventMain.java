@@ -17,11 +17,12 @@ import com.sony.client.entity.PPT;
 import com.sony.client.network.SendMessageToPCServerThread;
 import com.sony.client.utils.Code;
 import com.sony.client.utils.MySplit;
+import com.sony.client.utils.MyThread;
 
 public class TouchEventMain extends Activity {
 	String str = "null";
-	SendMessageToPCServerThread sm2pc;
-	Handler handler;
+	//SendMessageToPCServerThread sm2pc;
+	//Handler handler;
 	EditText et;// 备注
 	TextView tv_pages;// 页数
 	MySplit mysplit = new MySplit();
@@ -40,7 +41,7 @@ public class TouchEventMain extends Activity {
 		et.setText(ppt.getPPT_comment());
 		tv_pages.setText(String.valueOf(ppt.getPPT_index()));
 		// et.setText(PPT.pptList.toString());
-		handler = new Handler() {
+		MyThread.handler = new Handler() {
 			public void handleMessage(Message msg) {
 				// 操作成功
 				switch (msg.what) {
@@ -70,8 +71,16 @@ public class TouchEventMain extends Activity {
 
 			}
 		};
-		sm2pc = new SendMessageToPCServerThread(handler);
-		new Thread(sm2pc).start();
+
+		/*if (MyThread.sm2pc.stop) {
+			MyThread.sm2pc.stop = false;
+			//MyThread.sm2pc = new SendMessageToPCServerThread(MyThread.handler);
+	    	MyThread.thread = new Thread(MyThread.sm2pc);
+	    	MyThread.thread.start();
+		}*/
+		//sm2pc = new SendMessageToPCServerThread(handler);
+		//new Thread(sm2pc).start();
+		MyThread.sm2pc.setHandler(MyThread.handler);
 		gestureDetector = new BuileGestureExt(this,
 				new BuileGestureExt.OnGestureResult() {
 					@Override
@@ -95,7 +104,7 @@ public class TouchEventMain extends Activity {
 				String string = Code.KEY_DOWN;
 				operator = Code.KEY_DOWN;
 				sendmsg.obj = string;
-				sm2pc.revHandler.sendMessage(sendmsg);
+				MyThread.sm2pc.revHandler.sendMessage(sendmsg);
 				// Toast.makeText(MainActivity.this, "下一页",
 				// Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
@@ -110,7 +119,7 @@ public class TouchEventMain extends Activity {
 				String string = Code.KEY_UP;
 				operator = Code.KEY_UP;
 				sendmsg.obj = string;
-				sm2pc.revHandler.sendMessage(sendmsg);
+				MyThread.sm2pc.revHandler.sendMessage(sendmsg);
 				// Toast.makeText(MainActivity.this, "上一页",
 				// Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
@@ -119,6 +128,13 @@ public class TouchEventMain extends Activity {
 
 		}
 
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		MyThread.sm2pc.stop = true;
+		super.onDestroy();
 	}
 
 }

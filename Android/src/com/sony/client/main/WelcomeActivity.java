@@ -17,6 +17,7 @@ import com.sony.client.entity.PPT;
 import com.sony.client.network.SendMessageToPCServerThread;
 import com.sony.client.utils.AnalysisData;
 import com.sony.client.utils.Code;
+import com.sony.client.utils.MyThread;
 
 @SuppressLint("ShowToast")
 public class WelcomeActivity extends Activity{
@@ -26,20 +27,20 @@ public class WelcomeActivity extends Activity{
 	private Button bn_getAllInfo_button;
 	
 	
-	SendMessageToPCServerThread sm2pc;
-	Handler handler;
-	Thread thread;
+	//SendMessageToPCServerThread sm2pc;
+	//Handler handler;
+	//Thread thread;
 	
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome);
         
         
-        handler = new Handler(){
+        MyThread.handler = new Handler(){
 			public void handleMessage(Message msg){
 				switch(msg.what){
 					case Code.MSG_REV_SUCCESS_CONNECTION:
-						sm2pc.stop = true;
+						//sm2pc.stop = true;
 						AnalysisData as = new AnalysisData();
 						as.analysisDataFromPC(msg.obj.toString());
 						//Log.e("key",PPT.pptList.toString());
@@ -62,9 +63,9 @@ public class WelcomeActivity extends Activity{
     	bn_start_button.setOnClickListener(new MyClickListener());
     	bn_getAllInfo_button.setOnClickListener(new MyClickListener());
     	
-    	sm2pc = new SendMessageToPCServerThread(handler);
-		thread = new Thread(sm2pc);
-		thread.start();
+    	MyThread.sm2pc = new SendMessageToPCServerThread(MyThread.handler);
+    	MyThread.thread = new Thread(MyThread.sm2pc);
+    	MyThread.thread.start();
     }
     
     private class MyClickListener implements OnClickListener{
@@ -90,7 +91,7 @@ public class WelcomeActivity extends Activity{
 					sendmsg.what = Code.MSG_SEND;
 					String string = Code.ALLINFO;
 					sendmsg.obj = string;
-					sm2pc.revHandler.sendMessage(sendmsg);
+					MyThread.sm2pc.revHandler.sendMessage(sendmsg);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}

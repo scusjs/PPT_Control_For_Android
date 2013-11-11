@@ -5,7 +5,7 @@ import android.os.Handler;
 import com.sony.client.network.SendMessageToPCServerThread;
 
 public class MyThread {
-	static SendMessageToPCServerThread sm2pc;
-	static Handler handler;
-	static Thread thread;
+	public static SendMessageToPCServerThread sm2pc;
+	public static Handler handler;
+	public static Thread thread;
 }
