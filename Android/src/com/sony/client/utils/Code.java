@@ -17,6 +17,7 @@ public class Code {
 	public static final int MSG_REV_FAILURE = 0x111;//服务器返回错误时消息
 	public static final int MSG_REV_SUCCESS_CONNECTION = 0x222;//服务器返回正确时消息
 	public static final int MSG_REV_SUCCESS_OPERATEPC = 0x333;//服务器返回正确时消息
+	public static String IPADDRESS = "192.168.2.15";
 	
 	
 	

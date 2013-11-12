@@ -27,7 +27,8 @@ public class SendMessageToPCServerThread implements Runnable {
 	// private Socket s;
 	DatagramSocket s;
 	DatagramPacket packet;
-	int port = 9999;
+	int port = 9876;
+	String ip = Code.IPADDRESS;
 	// 定义向UI线程发送消息的Handler对象
 	private Handler handler;
 	// 定义接收UI线程的消息的Handler对象
@@ -47,6 +48,10 @@ public class SendMessageToPCServerThread implements Runnable {
 
 	public void setHandler(Handler handler) {
 		this.handler = handler;
+	}
+	
+	public void setIP(String ip) {
+		this.ip = ip;
 	}
 
 	@Override
@@ -133,7 +138,7 @@ public class SendMessageToPCServerThread implements Runnable {
 								}
 								Log.e("UDP", "OK");
 								InetAddress serverAddress = InetAddress
-										.getByName("192.168.1.102");
+										.getByName(ip);
 								byte data[] = (msg.obj.toString() + "\r\n")
 										.getBytes("utf-8");
 								packet = new DatagramPacket(data, data.length,

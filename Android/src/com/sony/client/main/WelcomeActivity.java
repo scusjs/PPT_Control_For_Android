@@ -2,14 +2,17 @@ package com.sony.client.main;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.sony.client.R;
@@ -25,7 +28,8 @@ public class WelcomeActivity extends Activity{
 	private Button bn_aboutUS;
 	private Button bn_start_button;
 	private Button bn_getAllInfo_button;
-	
+	private EditText et_ip;
+	private ProgressDialog progressDialog;
 	
 	//SendMessageToPCServerThread sm2pc;
 	//Handler handler;
@@ -34,7 +38,6 @@ public class WelcomeActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome);
-        
         
         MyThread.handler = new Handler(){
 			public void handleMessage(Message msg){
@@ -45,8 +48,7 @@ public class WelcomeActivity extends Activity{
 						as.analysisDataFromPC(msg.obj.toString());
 						//Log.e("key",PPT.pptList.toString());
 						Toast.makeText(WelcomeActivity.this, "成功获取全部消息", Toast.LENGTH_SHORT).show();
-						//WelcomeActivity.this.startActivity(new Intent(WelcomeActivity.this,StartView.class));
-						//finish();
+						progressDialog.dismiss();
 				}
 			}
 		};
@@ -62,6 +64,13 @@ public class WelcomeActivity extends Activity{
     	bn_aboutUS.setOnClickListener(new MyClickListener());
     	bn_start_button.setOnClickListener(new MyClickListener());
     	bn_getAllInfo_button.setOnClickListener(new MyClickListener());
+        et_ip = (EditText) findViewById(R.id.et_ip);
+        if ("".equals(getIP())) {
+        	et_ip.setText(Code.IPADDRESS);
+		}
+        else
+        	et_ip.setText(getIP());
+        
     	
     	MyThread.sm2pc = new SendMessageToPCServerThread(MyThread.handler);
     	MyThread.thread = new Thread(MyThread.sm2pc);
@@ -85,7 +94,12 @@ public class WelcomeActivity extends Activity{
 				finish();
 				break;
 			case R.id.bn_getAllInfo_button:
-				
+				saveIP(et_ip.getText().toString());
+				MyThread.sm2pc.setIP(et_ip.getText().toString());
+				progressDialog = new ProgressDialog(WelcomeActivity.this);
+				progressDialog.setTitle("正在获取消息");
+				progressDialog.setMessage("请稍后......");
+				progressDialog.show();
 				try {
 					Message sendmsg = new Message();
 					sendmsg.what = Code.MSG_SEND;
@@ -98,7 +112,18 @@ public class WelcomeActivity extends Activity{
 				//Toast.makeText(WelcomeActivity.this, "还没做", Toast.LENGTH_SHORT).show();
 				break;
 			}
+			
 		}
     	
+    }
+    private String getIP() {
+		SharedPreferences sharedPreferences = getSharedPreferences("Mysony", WelcomeActivity.MODE_PRIVATE);
+		return sharedPreferences.getString("ip", "");
+	}
+    private void saveIP(String ip) {
+    	SharedPreferences sharedPreferences = getSharedPreferences("Mysony", WelcomeActivity.MODE_PRIVATE);
+    	Editor editor = sharedPreferences.edit();//获取编辑器
+    	editor.putString("ip", ip);
+    	editor.commit();//提交修改
     }
 }

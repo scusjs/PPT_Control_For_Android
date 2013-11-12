@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,17 +15,17 @@ import android.widget.Toast;
 import com.gesture.BuileGestureExt;
 import com.sony.client.R;
 import com.sony.client.entity.PPT;
-import com.sony.client.network.SendMessageToPCServerThread;
 import com.sony.client.utils.Code;
 import com.sony.client.utils.MySplit;
 import com.sony.client.utils.MyThread;
 
 public class TouchEventMain extends Activity {
 	String str = "null";
-	//SendMessageToPCServerThread sm2pc;
-	//Handler handler;
+	// SendMessageToPCServerThread sm2pc;
+	// Handler handler;
 	EditText et;// 备注
 	TextView tv_pages;// 页数
+	//WakeLock wakeLock = null; //获取电源锁，保持屏幕熄灭时仍然获取CPU时，保持运行
 	MySplit mysplit = new MySplit();
 	public static int pages = 1;
 	String operator = Code.KEY_DOWN;
@@ -34,6 +35,7 @@ public class TouchEventMain extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//acquireWakeLock();
 		setContentView(R.layout.pptinfo);
 		ppt = PPT.pptList.get(0);
 		et = (EditText) findViewById(R.id.main_comment_textView);
@@ -48,20 +50,12 @@ public class TouchEventMain extends Activity {
 				case Code.MSG_REV_SUCCESS_OPERATEPC:
 
 					Log.e("msg", String.valueOf(msg.what));
-					if (Code.KEY_UP.equals(operator)) {
+					/*if (Code.KEY_UP.equals(operator)) {
+
 						
-						if (pages > 1) {
-							pages -= 1;
-						} else {
-							Toast.makeText(TouchEventMain.this,"已经到了第一页了", Toast.LENGTH_SHORT).show();
-						}
 					} else if (Code.KEY_DOWN.equals(operator)) {
-						if (pages  < PPT.pptList.size()) {
-							pages += 1;
-						} else {
-							Toast.makeText(TouchEventMain.this,"已经到了最后一页了", Toast.LENGTH_SHORT).show();
-						}
-					}
+						
+					}*/
 					Log.e("key", String.valueOf(pages));
 					ppt = PPT.pptList.get(pages - 1);
 					et.setText(ppt.getPPT_comment());
@@ -72,14 +66,14 @@ public class TouchEventMain extends Activity {
 			}
 		};
 
-		/*if (MyThread.sm2pc.stop) {
-			MyThread.sm2pc.stop = false;
-			//MyThread.sm2pc = new SendMessageToPCServerThread(MyThread.handler);
-	    	MyThread.thread = new Thread(MyThread.sm2pc);
-	    	MyThread.thread.start();
-		}*/
-		//sm2pc = new SendMessageToPCServerThread(handler);
-		//new Thread(sm2pc).start();
+		/*
+		 * if (MyThread.sm2pc.stop) { MyThread.sm2pc.stop = false;
+		 * //MyThread.sm2pc = new SendMessageToPCServerThread(MyThread.handler);
+		 * MyThread.thread = new Thread(MyThread.sm2pc);
+		 * MyThread.thread.start(); }
+		 */
+		// sm2pc = new SendMessageToPCServerThread(handler);
+		// new Thread(sm2pc).start();
 		MyThread.sm2pc.setHandler(MyThread.handler);
 		gestureDetector = new BuileGestureExt(this,
 				new BuileGestureExt.OnGestureResult() {
@@ -98,43 +92,92 @@ public class TouchEventMain extends Activity {
 	private void show(String value) {
 
 		if ("2".equals(value)) {
-			try {
-				Message sendmsg = new Message();
-				sendmsg.what = Code.MSG_SEND;
-				String string = Code.KEY_DOWN;
-				operator = Code.KEY_DOWN;
-				sendmsg.obj = string;
-				MyThread.sm2pc.revHandler.sendMessage(sendmsg);
-				// Toast.makeText(MainActivity.this, "下一页",
-				// Toast.LENGTH_SHORT).show();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
+			sendMesage(Code.KEY_DOWN);
 
 		} else if ("3".equals(value)) {
-
-			try {
-				Message sendmsg = new Message();
-				sendmsg.what = Code.MSG_SEND;
-				String string = Code.KEY_UP;
-				operator = Code.KEY_UP;
-				sendmsg.obj = string;
-				MyThread.sm2pc.revHandler.sendMessage(sendmsg);
-				// Toast.makeText(MainActivity.this, "上一页",
-				// Toast.LENGTH_SHORT).show();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-
+			sendMesage(Code.KEY_UP);
 		}
 
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		// 音量减小
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			//sendMesage(Code.KEY_DOWN);
+			if (pages < PPT.pptList.size()) {
+				pages += 1;
+			} else {
+				Toast.makeText(TouchEventMain.this, "已经到了最后一页了",
+						Toast.LENGTH_SHORT).show();
+			}
+			
+			ppt = PPT.pptList.get(pages - 1);
+			et.setText(ppt.getPPT_comment());
+			tv_pages.setText(String.valueOf(ppt.getPPT_index()));
+			return true;
+			// 音量增大
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			//sendMesage(Code.KEY_UP);
+			if (pages > 1) {
+				pages -= 1;
+			} else {
+				Toast.makeText(TouchEventMain.this, "已经到了第一页了",
+						Toast.LENGTH_SHORT).show();
+			}
+			ppt = PPT.pptList.get(pages - 1);
+			et.setText(ppt.getPPT_comment());
+			tv_pages.setText(String.valueOf(ppt.getPPT_index()));
+			return true;
+		}
+
+		return super.onKeyDown(keyCode, event);
+	}
+
+	private void sendMesage(String strmsg) {
+		try {
+			Message sendmsg = new Message();
+			sendmsg.what = Code.MSG_SEND;
+			String string = strmsg;
+			operator = strmsg;
+			sendmsg.obj = string;
+			MyThread.sm2pc.revHandler.sendMessage(sendmsg);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		MyThread.sm2pc.stop = true;
+		//releaseWakeLock();
 		super.onDestroy();
 	}
+	
+	//获取锁
+	/*private void acquireWakeLock()  
+    {  
+        if (null == wakeLock)  
+        {  
+            PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);  
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK|PowerManager.ON_AFTER_RELEASE, "PostLocationService");  
+            if (null != wakeLock)  
+            {  
+                wakeLock.acquire();  
+            }  
+        }  
+    }  
+	//释放设备电源锁  
+    private void releaseWakeLock()  
+    {  
+        if (null != wakeLock)  
+        {  
+            wakeLock.release();  
+            wakeLock = null;  
+        }  
+    }  */
 
 }

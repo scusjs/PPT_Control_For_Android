@@ -40,6 +40,7 @@ public final class R {
         public static final int bt_right=0x7f070012;
         public static final int cursor=0x7f070003;
         public static final int et=0x7f070013;
+        public static final int et_ip=0x7f070018;
         public static final int icon=0x7f070014;
         public static final int layout_IndexTextViewOfPPT=0x7f07000c;
         public static final int layout_displayCommentOfPPT=0x7f070007;
