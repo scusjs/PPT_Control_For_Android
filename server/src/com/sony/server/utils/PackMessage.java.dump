@@ -1,0 +1,48 @@
+package com.sony.server.utils;
+
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+
+/**
+ * 打包信息
+ * @author Administrator
+ *
+ */
+public class PackMessage {
+	private DatagramPacket sendPacket;
+	
+	public PackMessage(){
+		
+	}
+	/**
+	 * 发送过来的消息是否正确
+	 * @param message
+	 */
+	public void pack(String messageHead,boolean SUCCESS_OR_NOT, InetAddress IPAddress,int port){
+		if(messageHead.equals(MessageCode.FIRST_CONNECT) && SUCCESS_OR_NOT == true){
+			ReadDataFromDB rd = new ReadDataFromDB();
+			rd.read();
+			byte[] sendData = 
+				(MessageCode.FIRST_CONNECT + "#" + MessageCode.SUCCESS + "#" + rd.getSendData() + "#").getBytes();
+			sendPacket = new DatagramPacket(sendData,sendData.length,IPAddress,port);
+		}
+		if(messageHead.equals(MessageCode.FIRST_CONNECT) && SUCCESS_OR_NOT == false){
+			byte[] sendData = 
+				(MessageCode.FIRST_CONNECT + "#" + MessageCode.FAILURE + "#").getBytes();
+			sendPacket = new DatagramPacket(sendData,sendData.length,IPAddress,port);
+		}
+		
+		if(messageHead.equals(MessageCode.OPERATE_PC) && SUCCESS_OR_NOT == true){
+			byte[] sendData = (MessageCode.OPERATE_PC + "#" + MessageCode.SUCCESS + "#").getBytes();
+			sendPacket = new DatagramPacket(sendData,sendData.length,IPAddress,port);
+		}
+		if(messageHead.equals(MessageCode.OPERATE_PC) && SUCCESS_OR_NOT == false){
+			byte[] sendData = (MessageCode.OPERATE_PC + "#" + MessageCode.FAILURE + "#").getBytes();
+			sendPacket = new DatagramPacket(sendData,sendData.length,IPAddress,port);
+		}
+	}
+	
+	public DatagramPacket getSendPacket(){
+		return sendPacket;
+	}
+}
