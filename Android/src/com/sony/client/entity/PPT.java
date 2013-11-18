@@ -47,6 +47,6 @@ public class PPT {
 	}
 
 	public String toString(){
-		return PPT_index + "#" + PPT_speechTime + "#" + PPT_comment + "#";
+		return PPT_index + "_" + PPT_speechTime + "_" + PPT_comment + "_";
 	}
 }

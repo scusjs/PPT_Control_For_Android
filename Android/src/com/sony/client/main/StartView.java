@@ -36,7 +36,12 @@ public class StartView extends Activity{
 					case Code.MSG_REV_SUCCESS_OPERATEPC:
 						//sm2pc.stop = true;
 						StartView.this.startActivity(new Intent(StartView.this,TouchEventMain.class));
-						progressDialog.dismiss();
+						
+						int version =  Integer.valueOf(android.os.Build.VERSION.SDK);
+                        if(version > 5 ){
+                        	overridePendingTransition(R.drawable.zoomin, R.drawable.zoomout);
+                        }
+                        progressDialog.dismiss();
 						finish();
 				}
 			}

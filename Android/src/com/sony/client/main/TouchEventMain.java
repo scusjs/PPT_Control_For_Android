@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +38,8 @@ public class TouchEventMain extends Activity {
 		super.onCreate(savedInstanceState);
 		//acquireWakeLock();
 		setContentView(R.layout.pptinfo);
+		View v = findViewById(R.id.layout_pptinfo);
+		v.getBackground().setAlpha(100);
 		ppt = PPT.pptList.get(0);
 		et = (EditText) findViewById(R.id.main_comment_textView);
 		tv_pages = (TextView) findViewById(R.id.main_index_textView);
@@ -66,14 +69,7 @@ public class TouchEventMain extends Activity {
 			}
 		};
 
-		/*
-		 * if (MyThread.sm2pc.stop) { MyThread.sm2pc.stop = false;
-		 * //MyThread.sm2pc = new SendMessageToPCServerThread(MyThread.handler);
-		 * MyThread.thread = new Thread(MyThread.sm2pc);
-		 * MyThread.thread.start(); }
-		 */
-		// sm2pc = new SendMessageToPCServerThread(handler);
-		// new Thread(sm2pc).start();
+		
 		MyThread.sm2pc.setHandler(MyThread.handler);
 		gestureDetector = new BuileGestureExt(this,
 				new BuileGestureExt.OnGestureResult() {
@@ -92,19 +88,6 @@ public class TouchEventMain extends Activity {
 	private void show(String value) {
 
 		if ("2".equals(value)) {
-			sendMesage(Code.KEY_DOWN);
-
-		} else if ("3".equals(value)) {
-			sendMesage(Code.KEY_UP);
-		}
-
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		switch (keyCode) {
-		// 音量减小
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			//sendMesage(Code.KEY_DOWN);
 			if (pages < PPT.pptList.size()) {
 				pages += 1;
@@ -112,14 +95,13 @@ public class TouchEventMain extends Activity {
 				Toast.makeText(TouchEventMain.this, "已经到了最后一页了",
 						Toast.LENGTH_SHORT).show();
 			}
-			
+			Log.e("pages", String.valueOf(PPT.pptList.size()));
 			ppt = PPT.pptList.get(pages - 1);
 			et.setText(ppt.getPPT_comment());
 			tv_pages.setText(String.valueOf(ppt.getPPT_index()));
-			return true;
-			// 音量增大
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			//sendMesage(Code.KEY_UP);
+			
+
+		} else if ("3".equals(value)) {
 			if (pages > 1) {
 				pages -= 1;
 			} else {
@@ -129,6 +111,22 @@ public class TouchEventMain extends Activity {
 			ppt = PPT.pptList.get(pages - 1);
 			et.setText(ppt.getPPT_comment());
 			tv_pages.setText(String.valueOf(ppt.getPPT_index()));
+			
+		}
+
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		// 音量减小
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			sendMesage(Code.KEY_DOWN);
+			return true;
+			// 音量增大
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			//sendMesage(Code.KEY_UP);
+			sendMesage(Code.KEY_UP);
 			return true;
 		}
 
@@ -154,30 +152,11 @@ public class TouchEventMain extends Activity {
 		// TODO Auto-generated method stub
 		MyThread.sm2pc.stop = true;
 		//releaseWakeLock();
+		//PPT.pptList.removeAll(); 
+		
 		super.onDestroy();
 	}
 	
-	//获取锁
-	/*private void acquireWakeLock()  
-    {  
-        if (null == wakeLock)  
-        {  
-            PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);  
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK|PowerManager.ON_AFTER_RELEASE, "PostLocationService");  
-            if (null != wakeLock)  
-            {  
-                wakeLock.acquire();  
-            }  
-        }  
-    }  
-	//释放设备电源锁  
-    private void releaseWakeLock()  
-    {  
-        if (null != wakeLock)  
-        {  
-            wakeLock.release();  
-            wakeLock = null;  
-        }  
-    }  */
+
 
 }

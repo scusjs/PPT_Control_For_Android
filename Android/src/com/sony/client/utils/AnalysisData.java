@@ -4,10 +4,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.sony.client.entity.PPT;
 
 public class AnalysisData {
-	public void analysisDataFromPC(String data){
+	public void analysisDataFromPC(String data,Context context){
 		String[] array = data.trim().split("#");
 		if(array[0].equals(MessageCode.FIRST_CONNECT)){
 			if(array[1].equals(MessageCode.SUCCESS)){
@@ -19,8 +21,12 @@ public class AnalysisData {
 						//向链表中添加对象，由于这个链表是个类变量，所以可以直接使用
 						PPT.pptList.add(new PPT(Integer.parseInt(arrayTemp[0]),arrayTemp[1],arrayTemp[2]));
 						//System.out.println(PPT.pptList.toString());
+						
 					}
-				} catch (JSONException e) {
+					FileUtilsForMemory fu = new FileUtilsForMemory(PPT.pptList,context);
+					fu.saveFile();
+					fu.readFile();
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

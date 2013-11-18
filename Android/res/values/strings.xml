@@ -1,5 +1,18 @@
 <resources>
 
     <string name="app_name">MySonyClient</string>
+    <string name="help_dialog_text">  
+	    <i>作者: 沈津生 薛恩泽</i>  
+	    \n   
+	    \n   
+	    <i>联系：scusjs@foxmail.com</i>  
+	    \n 
+	    \n   
+	    <b>相关的介绍</b>      
+	    \n   
+	    \n   
+	    <b>有任何建议或者反馈可以随时联系作者</b>    
+	</string> 
+	<string name="about_close">关闭</string> 
 
 </resources>
